@@ -9,73 +9,39 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import Budgeteer.Time
+import Budgeteer.Types
 
-newtype Name = Name Text
-  deriving (Read, Show, Ord, Eq)
-
-newtype Description = Desc Text
-  deriving (Read, Show, Ord, Eq)
-
-newtype Cost = Cost Int
-  deriving (Read, Show, Ord, Eq)
-
--- newtype Durability = Dur Int
---   deriving (Read, Show, Ord, Eq)
-
-newtype Wear = Wear Rational
-  deriving (Read, Show, Ord, Eq)
-
--- | How much does the wear of an item change over a given period?
-newtype WearRate = WearRate Rational
-  deriving (Read, Show, Ord, Eq)
-
-newtype Lifetime = Lifetime NominalDiffTime
-  deriving (Show, Ord, Eq)
-
-data Item = Item { name :: Name
-                 , description :: Maybe Description
-                 , initCost :: Cost
-                 , newDate :: UTCTime
-                 , replacementDate :: UTCTime
-                 , replacementCost :: Cost
---                 , durability :: Durability
-                 , wearRate :: WearRate
-                 , temporalWearRate :: WearRate
-                 , wearState :: Wear
-                 , wearAxis :: Text
-                 , lifetimeEstimate :: Lifetime
-                 } deriving (Eq, Ord)
-
-investNow :: Item -> Cost
-investNow item = calcInvestment (replacementCost item) 0.08 (lifetimeEstimate item)
-
-investMonthly :: Item -> Cost
-investMonthly item = calcMonthInvestment (replacementCost item) 0.08 (lifetimeEstimate item)
-
-mkItem :: Text -- ^ The name of the item
-       -> Double -- ^ Cost, in dollars.
-       -> Int    -- ^ Lifetime, in seconds
-       -> IO Item
-mkItem name cost lifetime =
-  newItem (Name name) (Cost $ floor $ 100 * cost) (Lifetime $ fromIntegral $ lifetime)
-
-newItem :: Name -> Cost -> Lifetime -> IO Item
-newItem name cost (Lifetime lifetime) = do
-  let description = Nothing
-      initCost = cost
-  newDate <- getCurrentTime
-  let replacementDate = addUTCTime lifetime newDate
-      replacementCost = calcReplacementCost initCost (Lifetime lifetime)
-      wearRate = WearRate 1 -- default wear for ageing
-      temporalWearRate = wearRate
-      wearState = Wear 1.0
-      wearAxis = "Age"
-      lifetimeEstimate = (Lifetime lifetime)
-  return Item { .. }
-
+interestRate :: Double
+interestRate = 0.08 -- 8%
 
 inflation_rate :: Double
 inflation_rate = 0.01 -- 1%?
+
+investNow :: Item -> IO Cost
+investNow item = do
+  now <- getCurrentTime
+  let timeToSave = Lifetime $ diffUTCTime (itReplacementDate item) now
+  return $ calcInvestment (itReplacementCost item) interestRate timeToSave
+
+investMonthly :: Item -> IO Cost
+investMonthly item = do
+  now <- getCurrentTime
+  let timeToSave = Lifetime $ diffUTCTime (itReplacementDate item) now
+  return $ calcMonthInvestment (itReplacementCost item) interestRate timeToSave
+
+mkItem :: Text -- ^ The name of the item
+       -> Double -- ^ Cost, in dollars. Assumed to be a cost today.
+       -> Int    -- ^ Lifetime, in seconds. Assumed to start from now.
+       -> IO Item
+mkItem name cost lifetime = do
+  now <- getCurrentTime
+  let replacement = addUTCTime (fromIntegral lifetime) now
+      baseCost = floor $ 100 * cost
+  return Item { itId = Nothing
+              , itName = name
+              , itReplacementCost = calcReplacementCost baseCost (Lifetime $ fromIntegral lifetime)
+              , itReplacementDate = replacement
+              }
 
 -- A = P (1 + r/n) ^ nt:
 -- Where:
@@ -85,7 +51,7 @@ inflation_rate = 0.01 -- 1%?
 -- n = the number of times that interest is compounded per year
 -- t = the number of years the money is invested or borrowed for
 calcReplacementCost :: Cost -> Lifetime -> Cost
-calcReplacementCost (Cost p) (Lifetime lifetime) =
+calcReplacementCost p (Lifetime lifetime) =
   let t :: Int
       t = durationYears lifetime
 
@@ -101,7 +67,7 @@ calcReplacementCost (Cost p) (Lifetime lifetime) =
       theCost :: Double
       theCost = (fromIntegral p) * (( 1.0 + r_by_n) ** (fromIntegral n * fromIntegral t))
 
-  in Cost (floor theCost)
+  in floor theCost
 
 
 -- P = A / ( 1 + r/n ) ^ nt.
@@ -109,16 +75,16 @@ calcReplacementCost (Cost p) (Lifetime lifetime) =
 -- assumes monthly compounding
 calcInvestment :: Cost     -- ^ amount you need
                -> Double   -- ^ interest rate
-               -> Lifetime -- ^ when you need it
+               -> Lifetime -- ^ when you need it -- time from now.
                -> Cost     -- ^ how much to invest now
-calcInvestment (Cost a) r (Lifetime lifetime) =
+calcInvestment a r (Lifetime lifetime) =
   let t = fromIntegral $ durationYears lifetime
 
       n = fromIntegral 12 -- monthly compounding
 
       total = (fromIntegral a) / ((1 + r / n) ** (n * t))
 
-  in Cost (floor total)
+  in floor total
 
 
 -- A = PMT * (((1 + r/n)^nt - 1) / (r/n))
@@ -126,15 +92,15 @@ calcInvestment (Cost a) r (Lifetime lifetime) =
 --
 -- assumes monthly compounding
 calcMonthInvestment :: Cost     -- ^ amount you need
-               -> Double   -- ^ interest rate
-               -> Lifetime -- ^ when you need it
-               -> Cost     -- ^ how much to invest now
-calcMonthInvestment (Cost a) r (Lifetime lifetime) =
+                    -> Double   -- ^ interest rate
+                    -> Lifetime -- ^ when you need it -- time from now
+                    -> Cost     -- ^ how much to invest now
+calcMonthInvestment a r (Lifetime lifetime) =
   let t = fromIntegral $ durationYears lifetime
 
       n = fromIntegral 12 -- monthly compounding
 
       monthly = (fromIntegral a) / (((1 + r/n) ** (n * t) - 1) / (r/n))
 
-  in Cost (floor monthly)
+  in floor monthly
 
