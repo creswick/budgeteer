@@ -1,0 +1,23 @@
+Description: Basic schema for tracking items.
+Created: 2015-05-08 14:11:05.900656 UTC
+Depends:
+Apply: |
+  CREATE TABLE item_template (
+    item_template_id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    cost BIGINT NOT NULL,
+    costDate TIMESTAMP NOT NULL,
+    lifetime BIGINT NOT NULL
+  );
+
+  CREATE TABLE item (
+    item_id BIGSERIAL PRIMARY KEY,
+    item_template_id BIGINT REFERENCES item_template NOT NULL,
+    description TEXT,
+    replacement_cost BIGINT NOT NULL,
+    replacement_date TIMESTAMP NOT NULL
+  );
+
+Revert: |
+  DROP TABLE item;
+  DROP TABLE item_template;

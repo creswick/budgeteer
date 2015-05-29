@@ -10,6 +10,7 @@ import qualified Data.Text as T
 
 import Budgeteer.Time
 import Budgeteer.Types
+import Budgeteer.Db.Instances
 
 interestRate :: Double
 interestRate = 0.08 -- 8%
@@ -17,13 +18,13 @@ interestRate = 0.08 -- 8%
 inflation_rate :: Double
 inflation_rate = 0.01 -- 1%?
 
-investNow :: Item -> IO Cost
+investNow :: Item id -> IO Cost
 investNow item = do
   now <- getCurrentTime
   let timeToSave = Lifetime $ diffUTCTime (itReplacementDate item) now
   return $ calcInvestment (itReplacementCost item) interestRate timeToSave
 
-investMonthly :: Item -> IO Cost
+investMonthly :: Item id -> IO Cost
 investMonthly item = do
   now <- getCurrentTime
   let timeToSave = Lifetime $ diffUTCTime (itReplacementDate item) now
@@ -32,13 +33,14 @@ investMonthly item = do
 mkItem :: Text -- ^ The name of the item
        -> Double -- ^ Cost, in dollars. Assumed to be a cost today.
        -> Int    -- ^ Lifetime, in seconds. Assumed to start from now.
-       -> IO Item
+       -> IO (Item NoID)
 mkItem name cost lifetime = do
   now <- getCurrentTime
   let replacement = addUTCTime (fromIntegral lifetime) now
       baseCost = floor $ 100 * cost
-  return Item { itId = Nothing
+  return Item { itID = NoID
               , itName = name
+              , itDescription = Nothing
               , itReplacementCost = calcReplacementCost baseCost (Lifetime $ fromIntegral lifetime)
               , itReplacementDate = replacement
               }
