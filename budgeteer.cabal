@@ -19,7 +19,9 @@ library
   exposed-modules:     Budgeteer.Items
                        Budgeteer.Types
                        Budgeteer.Time
-  -- other-modules:
+                       Budgeteer.Db
+  other-modules:       Budgeteer.Db.Instances
+
   -- other-extensions:
   build-depends:       base >=4.5 && <6,
                        time,

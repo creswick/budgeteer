@@ -9,6 +9,7 @@ import GHC.Generics (Generic)
 
 type Error = String
 
+-- | Things that can be retrieved from the database.
 class Loadable a where
   loadByID :: Connection -> ID -> IO (Maybe (a WithID))
   loadAll :: Connection -> IO [a WithID]
