@@ -32,3 +32,24 @@ library
 
   hs-source-dirs:      src
   default-language:    Haskell2010
+
+test-suite budgeteer-tests
+  Main-Is:            Main.hs
+  hs-source-dirs:     tests
+  ghc-options:        -Wall
+  default-language:   Haskell2010
+  type:               exitcode-stdio-1.0
+  Build-depends:      base >= 4.6 && < 4.9,
+                      text,
+                      process,
+                      bytestring,
+                      budgeteer,
+                      QuickCheck,
+                      quickcheck-instances,
+                      tasty,
+                      tasty-quickcheck,
+                      tasty-hunit,
+                      tasty-ant-xml
+
+  other-modules: Utils
+                 Tests.Budgeteer.Storage
