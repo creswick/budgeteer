@@ -1,10 +1,12 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Utils
   ( createTestDatabase
   , TestException(..)
   ) where
 
 import qualified Control.Exception as E
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
 import           Data.Typeable ( Typeable )
 import qualified System.Exit as E
@@ -19,11 +21,11 @@ instance E.Exception TestException
 
 -- | Create a test db and return the connection string.
 -- Could fail with exceptions if the db can't be created.
-createTestDatabase :: IO String
+createTestDatabase :: IO ByteString
 createTestDatabase = do
   dbName <- testDbName
   setupDatabase dbName
-  return $ buildConnStr dbName
+  return $ C8.pack $ buildConnStr dbName
 
 testDbName :: IO String
 testDbName = do

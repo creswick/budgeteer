@@ -1,5 +1,7 @@
 module Main where
 
+
+import Data.ByteString (ByteString)
 import Test.Tasty (TestTree, defaultIngredients, defaultMainWithIngredients
                   , testGroup)
 import Test.Tasty.Ingredients (Ingredient)
@@ -17,7 +19,7 @@ main = do
   connStr <- createTestDatabase
   defaultMainWithIngredients ingredients (tests connStr)
 
-tests :: String -> TestTree
+tests :: ByteString -> TestTree
 tests connStr = testGroup "Tests"
   [ storageTests connStr
   ]

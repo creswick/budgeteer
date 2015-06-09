@@ -69,7 +69,7 @@ instance Loadable Item where
 
 instance Storable Item where
   store conn item = do
-    res <- query conn [sql| INSERT INTO items
+    res <- query conn [sql| INSERT INTO item
                               (item_template_id, description, replacement_cost, replacement_date)
                               VALUES (?, ?, ?, ?)
                               RETURNING item_id

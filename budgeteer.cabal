@@ -20,7 +20,7 @@ library
                        Budgeteer.Types
                        Budgeteer.Time
                        Budgeteer.Db
-  other-modules:       Budgeteer.Db.Instances
+                       Budgeteer.Db.Instances
 
   -- other-extensions:
   build-depends:       base >=4.5 && <6,
@@ -43,6 +43,7 @@ test-suite budgeteer-tests
                       text,
                       process,
                       bytestring,
+                      postgresql-simple,
                       budgeteer,
                       QuickCheck,
                       quickcheck-instances,
