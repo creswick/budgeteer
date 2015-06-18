@@ -13,10 +13,10 @@ import Budgeteer.Types
 import Budgeteer.Db.Instances
 
 interestRate :: Double
-interestRate = 0.08 -- 8%
+interestRate = 0.04
 
 inflation_rate :: Double
-inflation_rate = 0.01 -- 1%?
+inflation_rate = 0.03 -- 1%?
 
 investNow :: Item id -> IO Cost
 investNow item = do
@@ -37,13 +37,20 @@ mkItem :: Text -- ^ The name of the item
 mkItem name cost lifetime = do
   now <- getCurrentTime
   let replacement = addUTCTime (fromIntegral lifetime) now
-      baseCost = floor $ 100 * cost
+      baseCost = floor cost
   return Item { itID = NoID
               , itName = name
               , itDescription = Nothing
               , itReplacementCost = calcReplacementCost baseCost (Lifetime $ fromIntegral lifetime)
               , itReplacementDate = replacement
               }
+
+calcReplacementCost :: Cost -> Lifetime -> Cost
+calcReplacementCost p (Lifetime lifetime) =
+  let
+    theCost :: Double
+    theCost = (fromIntegral p) * ((1.0 + inflation_rate) ** (fromIntegral $ durationYears lifetime))
+  in floor theCost
 
 -- A = P (1 + r/n) ^ nt:
 -- Where:
@@ -52,8 +59,8 @@ mkItem name cost lifetime = do
 -- r = the annual interest rate (decimal)
 -- n = the number of times that interest is compounded per year
 -- t = the number of years the money is invested or borrowed for
-calcReplacementCost :: Cost -> Lifetime -> Cost
-calcReplacementCost p (Lifetime lifetime) =
+fv :: Cost -> Lifetime -> Cost
+fv p (Lifetime lifetime) =
   let t :: Int
       t = durationYears lifetime
 
