@@ -24,14 +24,13 @@ import           Snap.Snaplet.Config
 import           Snap.Core
 import           System.IO
 import           Site
+import           Snap.Loader.Static
 
 #ifdef DEVELOPMENT
 -- import           Snap.Loader.Dynamic
 #else
 -- import           Snap.Loader.Static
 #endif
-
-{-#
 
 ------------------------------------------------------------------------------
 -- | This is the entry point for this web server application. It supports
@@ -113,7 +112,3 @@ getActions conf = do
         (appEnvironment =<< getOther conf) app
     hPutStrLn stderr $ T.unpack msgs
     return (site, cleanup)
-
-#-}
-main :: IO ()
-main = putStrLn "build with snap-loader"

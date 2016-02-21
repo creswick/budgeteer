@@ -7,10 +7,10 @@ packages:
 - '.'
 - deps/hssqlppp/hssqlppp
 - deps/hssqlppp/hssqlppp-th
+- deps/snap-loader-static-0.9.0.2
 
 extra-deps:
 - resource-pool-catchio-0.2.1.0
-# - snap-loader-static-0.9.0.2
 - snaplet-postgresql-simple-0.6.0.4
 - text-1.2.2.0
 
