@@ -3,6 +3,7 @@
 const React = require('react');
 const { Router, Route, Link } = require('react-router');
 const ExpenseList = require('./ExpenseList.jsx');
+const ExpenseGraph = require('./ExpenseGraph.jsx');
 
 const sampleData =
 [ { "name": "Replace the roof"
@@ -61,6 +62,7 @@ const App = React.createClass({
                     <li><Link to="/expenses">Expenses</Link></li>
                     <li><Link to="/docs">API Docs</Link></li>
                 </ul>
+                <ExpenseGraph expenses={this.state.data}/>
                 <ExpenseList expenses={this.state.data}/>
                 {this.props.children}
             </div>

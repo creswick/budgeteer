@@ -1,0 +1,5 @@
+.notegraph .sparkline {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
