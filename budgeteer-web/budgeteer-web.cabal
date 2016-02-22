@@ -21,7 +21,8 @@ library
                        API.Meta
                        API.Auth
 
-  build-depends:       base >= 4.7 && < 5,
+  build-depends:       budgeteer-lib,
+                       base >= 4.7 && < 5,
                        errors,
                        aeson,
                        text,
