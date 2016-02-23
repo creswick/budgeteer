@@ -15,6 +15,7 @@ import Snap.Snaplet.Session
 import Snap.Snaplet.PostgresqlSimple
 ------------------------------------------------------------------------------
 import API.Meta (Meta(..))
+import API.Items (Items(..))
 ------------------------------------------------------------------------------
 
 data App = App
@@ -22,6 +23,7 @@ data App = App
   , _auth :: Snaplet (AuthManager App)
   , _db   :: Snaplet Postgres
   , _meta :: Snaplet Meta
+  , _items :: Snaplet Items
   }
 
 makeLenses ''App

@@ -19,7 +19,9 @@ library
   exposed-modules:     Site
                        Application
                        API.Meta
+                       API.Items
                        API.Auth
+                       Utils.WebUtils
 
   build-depends:       budgeteer-lib,
                        base >= 4.7 && < 5,

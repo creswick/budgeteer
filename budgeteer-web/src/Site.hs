@@ -24,6 +24,7 @@ import           Snap.Util.FileServe
 import           Application
 
 import           API.Meta (Meta(..), metaInit)
+import           API.Items (Items(..), itemsInit)
 
 -- ------------------------------------------------------------------------------
 -- -- | Render login form
@@ -78,7 +79,8 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     d <- nestSnaplet "db" db pgsInit
     a <- nestSnaplet "auth" auth $ initPostgresAuth sess d
     m <- nestSnaplet "meta" meta metaInit
+    i <- nestSnaplet "items" items itemsInit
 
     addRoutes routes
-    return $ App s a d m
+    return $ App s a d m i
 
