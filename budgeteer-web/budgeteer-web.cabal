@@ -22,6 +22,8 @@ library
                        API.Items
                        API.Auth
                        Utils.WebUtils
+                       Utils.DBUtils
+                       Backend.Items
 
   build-depends:       budgeteer-lib,
                        base >= 4.7 && < 5,
@@ -35,11 +37,13 @@ library
                        hssqlppp-th,
                        snap,
                        snap-core,
+                       snap-extras,
                        snap-server,
                        snaplet-postgresql-simple,
                        safe,
                        lens,
-                       mtl
+                       mtl,
+                       transformers
 
   default-language:    Haskell2010
 
